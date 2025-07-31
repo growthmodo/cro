@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopify Landing Page Optimization Agent</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .form-container {
+            padding: 40px;
+        }
+
+        .action-selector {
+            margin-bottom: 30px;
+        }
+
+        .action-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .action-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .action-card:hover {
+            border-color: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.15);
+        }
+
+        .action-card.selected {
+            border-color: #2563eb;
+            background: #eff6ff;
+        }
+
+        .action-card input[type="radio"] {
+            display: none;
+        }
+
+        .action-card .icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .action-card h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #1f2937;
+        }
+
+        .action-card p {
+            font-size: 14px;
+            color: #6b7280;
+            line-height: 1.4;
+        }
+
+        .form-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
+        .required {
+            color: #ef4444;
+        }
+
+        .url-list {
+            margin-top: 10px;
+        }
+
+        .url-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .url-input-group input {
+            flex: 1;
+        }
+
+        .btn-add-url,
+        .btn-remove-url {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-add-url {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-remove-url {
+            background: #ef4444;
+            color: white;
+        }
+
+        .submit-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #e5e7eb;
+            text-align: center;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 200px;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            margin-top: 20px;
+            color: #6b7280;
+        }
+
+        .result {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .result.success {
+            background: #dcfce7;
+            border: 1px solid #16a34a;
+            color: #166534;
+        }
+
+        .result.error {
+            background: #fef2f2;
+            border: 1px solid #dc2626;
+            color: #991b1b;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                margin: 10px;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Shopify Landing Page Agent</h1>
+            <p>Analyze, Create, and Optimize High-Converting Landing Pages</p>
+        </div>
+
+        <div class="form-container">
+            <form id="shopifyForm">
+                <!-- Action Selection -->
+                <div class="action-selector">
+                    <label><strong>What would you like to do?</strong></label>
+                    <div class="action-cards">
+                        <div class="action-card" data-action="analyze">
+                            <input type="radio" name="action_type" value="analyze" id="analyze">
+                            <span class="icon">🔍</span>
+                            <h3>Analyze Existing</h3>
+                            <p>Analyze your current landing page and get optimization suggestions</p>
+                        </div>
+                        <div class="action-card" data-action="create">
+                            <input type="radio" name="action_type" value="create" id="create">
+                            <span class="icon">✨</span>
+                            <h3>Create New</h3>
+                            <p>Build a brand new high-converting landing page from scratch</p>
+                        </div>
+                        <div class="action-card" data-action="train">
+                            <input type="radio" name="action_type" value="train" id="train">
+                            <span class="icon">🧠</span>
+                            <h3>Train System</h3>
+                            <p>Train the AI with your best-performing pages and preferences</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analyze Section -->
+                <div id="analyze-section" class="form-section">
+                    <h3>📊 Analyze Existing Landing Page</h3>
+                    <div class="form-group">
+                        <label for="page_url">Page URL to Analyze <span class="required">*</span></label>
+                        <input type="url" id="page_url" name="page_url" placeholder="https://yourstore.com/pages/landing-page" required>
+                        <div class="help-text">Enter the full URL of the landing page you want to analyze</div>
+                    </div>
+                </div>
+
+                <!-- Create Section -->
+                <div id="create-section" class="form-section">
+                    <h3>🎨 Create New Landing Page</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="business_name">Business Name <span class="required">*</span></label>
+                            <input type="text" id="business_name" name="business_name" placeholder="TechFlow Solutions" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="industry">Industry</label>
+                            <select id="industry" name="industry">
+                                <option value="">Select Industry</option>
+                                <option value="saas">SaaS</option>
+                                <option value="ecommerce">E-commerce</option>
+                                <option value="consulting">Consulting</option>
+                                <option value="healthcare">Healthcare</option>
+                                <option value="fintech">FinTech</option>
+                                <option value="education">Education</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="value_proposition">Value Proposition <span class="required">*</span></label>
+                        <textarea id="value_proposition" name="value_proposition" placeholder="Save 20+ hours per week by automating your workflow processes" required></textarea>
+                        <div class="help-text">What's your main benefit or promise to customers?</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="target_audience">Target Audience</label>
+                        <input type="text" id="target_audience" name="target_audience" placeholder="Small to medium business owners">
+                        <div class="help-text">Who is your ideal customer?</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="product_service">Product/Service Description</label>
+                        <textarea id="product_service" name="product_service" placeholder="AI-powered workflow automation platform that connects your favorite tools"></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="conversion_goal">Primary Goal</label>
+                            <select id="conversion_goal" name="conversion_goal">
+                                <option value="sales">Sales/Purchase</option>
+                                <option value="leads">Lead Generation</option>
+                                <option value="signups">Sign-ups/Registration</option>
+                                <option value="awareness">Brand Awareness</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="tone_of_voice">Tone of Voice</label>
+                            <select id="tone_of_voice" name="tone_of_voice">
+                                <option value="professional">Professional</option>
+                                <option value="friendly">Friendly</option>
+                                <option value="bold">Bold</option>
+                                <option value="elegant">Elegant</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="brand_colors">Brand Colors (optional)</label>
+                        <input type="text" id="brand_colors" name="brand_colors" placeholder="#2563EB, #10B981, #F59E0B">
+                        <div class="help-text">Enter hex color codes separated by commas</div>
+                    </div>
+                </div>
+
+                <!-- Train Section -->
+                <div id="train-section" class="form-section">
+                    <h3>🧠 Train the System</h3>
+                    
+                    <div class="form-group">
+                        <label>High-Performing Example Pages <span class="required">*</span></label>
+                        <div class="url-list" id="urlList">
+                            <div class="url-input-group">
+                                <input type="url" name="example_pages[]" placeholder="https://example.com/landing-page" required>
+                                <button type="button" class="btn-add-url" onclick="addUrlInput()">+ Add</button>
+                            </div>
+                        </div>
+                        <div class="help-text">Add URLs of landing pages that convert well in your industry</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="industry_focus">Industry Focus</label>
+                        <input type="text" id="industry_focus" name="industry_focus" placeholder="SaaS, B2B Software">
+                        <div class="help-text">What industry should the training focus on?</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="brand_guidelines">Brand Guidelines</label>
+                        <textarea id="brand_guidelines" name="brand_guidelines" placeholder="Use clean, minimal design with blue accent colors. Professional but approachable tone."></textarea>
+                        <div class="help-text">Describe your brand personality and visual preferences</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="custom_rules">Custom Rules & Requirements</label>
+                        <textarea id="custom_rules" name="custom_rules" placeholder="Always include social proof, keep forms under 3 fields, use action-oriented CTAs"></textarea>
+                        <div class="help-text">Any specific requirements or rules for your landing pages?</div>
+                    </div>
+                </div>
+
+                <!-- Shopify Credentials (Common) -->
+                <div id="credentials-section" style="display: none;">
+                    <h3>🔐 Shopify Store Credentials</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="shopify_domain">Shopify Domain <span class="required">*</span></label>
+                            <input type="text" id="shopify_domain" name="shopify_domain" placeholder="yourstore.myshopify.com" required>
+                            <div class="help-text">Your Shopify store domain (without https://)</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="access_token">Admin API Access Token <span class="required">*</span></label>
+                            <input type="password" id="access_token" name="access_token" placeholder="shpat_..." required>
+                            <div class="help-text">Your Shopify Admin API private app access token</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Section -->
+                <div class="submit-section">
+                    <button type="submit" class="btn-submit" id="submitBtn">
+                        <span id="submitText">🚀 Start Processing</span>
+                    </button>
+                    <div class="loading" id="loading">
+                        ⏳ Processing your request... This may take a few minutes.
+                    </div>
+                    <div class="result" id="result"></div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Configuration - UPDATE THESE URLS
+        const WEBHOOK_URL = 'https://your-n8n-domain.com/webhook/shopify-landing-agent';
+        
+        // Form handling
+        const form = document.getElementById('shopifyForm');
+        const actionCards = document.querySelectorAll('.action-card');
+        const formSections = document.querySelectorAll('.form-section');
+        const credentialsSection = document.getElementById('credentials-section');
+        const submitBtn = document.getElementById('submitBtn');
+        const loading = document.getElementById('loading');
+        const result = document.getElementById('result');
+
+        // Action card selection
+        actionCards.forEach(card => {
+            card.addEventListener('click', function() {
+                const action = this.dataset.action;
+                const radio = this.querySelector('input[type="radio"]');
+                
+                // Update UI
+                actionCards.forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+                radio.checked = true;
+                
+                // Show relevant section
+                formSections.forEach(section => section.classList.remove('active'));
+                document.getElementById(action + '-section').classList.add('active');
+                credentialsSection.style.display = 'block';
+                
+                // Update submit button text
+                const buttonTexts = {
+                    'analyze': '🔍 Analyze Landing Page',
+                    'create': '✨ Create New Page',
+                    'train': '🧠 Train System'
+                };
+                document.getElementById('submitText').textContent = buttonTexts[action];
+            });
+        });
+
+        // Add URL input for training
+        function addUrlInput() {
+            const urlList = document.getElementById('urlList');
+            const newGroup = document.createElement('div');
+            newGroup.className = 'url-input-group';
+            newGroup.innerHTML = `
+                <input type="url" name="example_pages[]" placeholder="https://example.com/landing-page">
+                <button type="button" class="btn-remove-url" onclick="this.parentElement.remove()">Remove</button>
+            `;
+            urlList.appendChild(newGroup);
+        }
+
+        // Form submission
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(form);
+            const data = {};
+            
+            // Convert FormData to object
+            for (let [key, value] of formData.entries()) {
+                if (key.includes('[]')) {
+                    const cleanKey = key.replace('[]', '');
+                    if (!data[cleanKey]) data[cleanKey] = [];
+                    data[cleanKey].push(value);
+                } else {
+                    data[key] = value;
+                }
+            }
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            
+            try {
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    const responseData = await response.json();
+                    showResult('success', 'Request submitted successfully! Your landing page is being processed. You\'ll receive an email notification when it\'s complete.');
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                showResult('error', `Error: ${error.message}. Please check your n8n webhook URL and try again.`);
+            } finally {
+                submitBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        });
+
+        function showResult(type, message) {
+            result.className = `result ${type}`;
+            result.textContent = message;
+            result.style.display = 'block';
+        }
+
+        // Form validation enhancement
+        form.addEventListener('input', function(e) {
+            if (e.target.type === 'url' && e.target.value) {
+                try {
+                    new URL(e.target.value);
+                    e.target.style.borderColor = '#10b981';
+                } catch {
+                    e.target.style.borderColor = '#ef4444';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
